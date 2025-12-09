@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charging Stations - Tata Motors</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><span>🔋 Tata EV Platform</span></div>
+            <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/chargers">Chargers</a></li><li><a href="/recommend">Recommend</a></li><li><a href="/chat">Chat</a></li></ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="page-section">
+            <h1>🔌 EV Charging Station Finder</h1>
+            <p class="subtitle">Find nearby charging stations across India.</p>
+
+            <div class="filter-card">
+                <h2>Filter Stations</h2>
+                <form id="filterForm">
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <select id="city">
+                            <option value="">All Cities</option>
+                            <option>Mumbai</option>
+                            <option>Delhi</option>
+                            <option>Bangalore</option>
+                            <option>Pune</option>
+                            <option>Hyderabad</option>
+                            <option>Ahmedabad</option>
+                            <option>Chennai</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chargerType">Charger Type</label>
+                        <select id="chargerType">
+                            <option value="">All Types</option>
+                            <option value="AC">AC (Slow)</option>
+                            <option value="DC">DC (Fast)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="minPower">Min Power (kW)</label>
+                        <input type="number" id="minPower" placeholder="e.g., 50">
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="loadStations()">Search Stations</button>
+                    <button type="button" class="btn btn-secondary" onclick="loadFastChargers()">Show Fast Chargers Only</button>
+                </form>
+            </div>
+
+            <!-- Stations Display -->
+            <div id="stationsContainer" class="stations-grid">
+                <p class="loading">Loading stations...</p>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer"><p>&copy; 2025 Tata Motors EV Platform.</p></footer>
+
+    <script>
+        async function loadStations() {
+            const params = new URLSearchParams();
+            
+            if (document.getElementById('city').value) {
+                params.append('city', document.getElementById('city').value);
+            }
+            if (document.getElementById('chargerType').value) {
+                params.append('charger_type', document.getElementById('chargerType').value);
+            }
+            if (document.getElementById('minPower').value) {
+                params.append('min_power_kw', document.getElementById('minPower').value);
+            }
+
+            try {
+                const response = await fetch(`/api/chargers?${params}`);
+                const data = await response.json();
+                displayStations(data.stations);
+            } catch (error) {
+                alert('Error loading stations: ' + error);
+            }
+        }
+
+        async function loadFastChargers() {
+            try {
+                const response = await fetch('/api/chargers/fast');
+                const data = await response.json();
+                displayStations(data.stations);
+            } catch (error) {
+                alert('Error loading fast chargers: ' + error);
+            }
+        }
+
+        function displayStations(stations) {
+            const container = document.getElementById('stationsContainer');
+            
+            if (!stations || stations.length === 0) {
+                container.innerHTML = '<p class="no-results">No stations found. Try different filters.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            stations.forEach(station => {
+                container.innerHTML += `
+                    <div class="station-card ${station.charger_type === 'DC' ? 'fast' : 'slow'}">
+                        <div class="station-header">
+                            <h3>${station.name}</h3>
+                            <span class="charger-badge ${station.charger_type}">${station.charger_type}</span>
+                        </div>
+                        <p class="location">📍 ${station.location}, ${station.city}</p>
+                        <div class="station-details">
+                            <div class="detail">
+                                <span class="label">Power:</span>
+                                <span>${station.power_kw}kW</span>
+                            </div>
+                            <div class="detail">
+                                <span class="label">Cost:</span>
+                                <span>₹${station.cost_per_kwh}/kWh</span>
+                            </div>
+                            <div class="detail">
+                                <span class="label">Speed:</span>
+                                <span>${station.charging_speed}</span>
+                            </div>
+                            <div class="detail">
+                                <span class="label">Status:</span>
+                                <span class="available">${station.availability}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Load all stations on page load
+        window.addEventListener('load', loadStations);
+    </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Range Simulator - Tata Motors</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><span>🔋 Tata EV Platform</span></div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/recommend">Recommend</a></li>
+                <li><a href="/range">Range</a></li>
+                <li><a href="/chat">Chat</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="page-section">
+            <h1>📊 Realistic Range Simulator</h1>
+            <p class="subtitle">Discover real-world range based on your driving conditions.</p>
+
+            <div class="form-card">
+                <h2>Simulation Parameters</h2>
+                <form id="rangeForm">
+                    <div class="form-group">
+                        <label for="model">Select Model</label>
+                        <select id="model" name="model" required>
+                            <option>Loading models...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>AC Usage</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="acUsage" name="acUsage"> Use AC during journey</label>
+                            <small>AC reduces range by ~10%</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="drivingStyle">Driving Style</label>
+                        <select id="drivingStyle" name="drivingStyle">
+                            <option value="aggressive">🚗 Aggressive (High Speed)</option>
+                            <option value="moderate" selected>🚙 Moderate (Normal)</option>
+                            <option value="eco">🍃 Eco (Efficient)</option>
+                        </select>
+                        <small>Choose based on your typical driving pattern</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cityType">Terrain Type</label>
+                        <select id="cityType" name="cityType">
+                            <option value="city">🏙️ City (Stop & Go)</option>
+                            <option value="highway" selected>🛣️ Highway (Constant Speed)</option>
+                            <option value="mix">🔄 Mixed Terrain</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="temperature">Weather Condition</label>
+                        <select id="temperature" name="temperature">
+                            <option value="cold">❄️ Cold (0-15°C)</option>
+                            <option value="normal" selected>☀️ Normal (15-35°C)</option>
+                            <option value="hot">🔥 Hot (35°C+)</option>
+                        </select>
+                        <small>Temperature affects battery efficiency</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large">Calculate Range</button>
+                </form>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <h2>Your Range Estimate</h2>
+
+                <div class="range-comparison">
+                    <div class="range-box">
+                        <h3>Base Range (ARAI)</h3>
+                        <div class="range-value" id="baseRange">--</div>
+                    </div>
+
+                    <div class="range-arrow">→</div>
+
+                    <div class="range-box highlight">
+                        <h3>Real-World Range</h3>
+                        <div class="range-value" id="adjustedRange">--</div>
+                    </div>
+                </div>
+
+                <div class="explanation-card">
+                    <h3>How We Calculated This</h3>
+                    <p id="explanation"></p>
+                </div>
+
+                <div class="factors-card">
+                    <h3>Adjustment Factors Applied</h3>
+                    <div class="factors-list">
+                        <div class="factor" id="acFactor"></div>
+                        <div class="factor" id="styleFactor"></div>
+                        <div class="factor" id="terrainFactor"></div>
+                        <div class="factor" id="tempFactor"></div>
+                    </div>
+                </div>
+
+                <div class="tips-card">
+                    <h3>💡 Tips to Maximize Range</h3>
+                    <ul>
+                        <li>Drive in eco mode for maximum efficiency</li>
+                        <li>Reduce AC usage to improve range</li>
+                        <li>Maintain steady speed on highways</li>
+                        <li>Keep tire pressure at recommended levels</li>
+                        <li>Reduce payload and remove roof racks</li>
+                        <li>Plan routes with charging stations</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Tata Motors EV Platform.</p>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        // Load models
+        fetch('/api/models')
+            .then(r => r.json())
+            .then(d => {
+                const select = document.getElementById('model');
+                select.innerHTML = '';
+                d.models.forEach(m => {
+                    select.innerHTML += `<option>${m.name}</option>`;
+                });
+            });
+
+        // Handle form submission
+        document.getElementById('rangeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const data = {
+                model: document.getElementById('model').value,
+                ac_usage: document.getElementById('acUsage').checked,
+                driving_style: document.getElementById('drivingStyle').value,
+                city_type: document.getElementById('cityType').value,
+                temperature: document.getElementById('temperature').value
+            };
+
+            try {
+                const response = await fetch('/api/range', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('baseRange').textContent = result.base_range_km + ' km';
+                    document.getElementById('adjustedRange').textContent = result.adjusted_range_km + ' km';
+                    document.getElementById('explanation').textContent = result.explanation;
+
+                    // Show factors
+                    const reduction = ((result.base_range_km - result.adjusted_range_km) / result.base_range_km * 100).toFixed(0);
+                    document.getElementById('acFactor').innerHTML = `<strong>AC Usage:</strong> ${data.ac_usage ? '-10%' : 'None'}`;
+                    document.getElementById('styleFactor').innerHTML = `<strong>Driving Style:</strong> ${data.driving_style}`;
+                    document.getElementById('terrainFactor').innerHTML = `<strong>Terrain:</strong> ${data.city_type}`;
+                    document.getElementById('tempFactor').innerHTML = `<strong>Temperature:</strong> ${data.temperature}`;
+
+                    document.getElementById('resultsSection').style.display = 'block';
+                    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error);
+            }
+        });
+    </script>
+</body>
+</html>

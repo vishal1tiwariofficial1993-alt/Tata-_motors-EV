@@ -1,0 +1,52 @@
+# Tata Motors EV Platform - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core Web Framework
+Flask==2.3.3
+Flask-CORS==4.0.0
+
+# Database (Optional - for production)
+# SQLAlchemy==2.0.20
+# Flask-SQLAlchemy==3.0.5
+
+# AI/LLM Integration (Choose one)
+# openai==0.27.8  # For OpenAI API
+# anthropic==0.7.0  # For Claude API
+# google-generativeai==0.3.0  # For Google Gemini
+
+# Data Processing
+pandas==2.0.3
+numpy==1.24.3
+
+# HTTP Requests
+requests==2.31.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Production Server
+gunicorn==21.2.0
+waitress==2.1.2
+
+# Development Tools
+pytest==7.4.0
+pytest-cov==4.1.0
+black==23.7.0
+flake8==6.0.0
+pylint==2.17.4
+
+# Logging & Monitoring
+python-logging-loki==0.3.2
+
+# Optional: For Async Tasks
+# celery==5.3.1
+# redis==4.6.0
+
+# Optional: For Database Migrations
+# alembic==1.11.3
+
+# Optional: For API Documentation
+# flasgger==0.9.7.1
+
+# Note: Replace placeholders with your actual LLM provider credentials
+# in config files before deploying to production.
