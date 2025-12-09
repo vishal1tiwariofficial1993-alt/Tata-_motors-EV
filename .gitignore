@@ -1,0 +1,107 @@
+# Tata Motors EV App - Git Ignore
+# Ignore common files that shouldn't be committed
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+config.ini
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+tata_ev.db
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Cache
+.cache/
+*.cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Build outputs
+dist/
+build/
+*.whl
+
+# Testing
+.tox/
+.coverage.*
+nosetests.xml
+
+# Miscellaneous
+.vscode/settings.json
+.AppleDouble
+.LSOverride
+*.sublime-project
+*.sublime-workspace
+
+# Node (if frontend build tools are added)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker
+.dockerignore
+
+# Secrets
+secrets.json
+api_keys.txt
+
+# Temporary files
+*.tmp
+*.temp
+~*
